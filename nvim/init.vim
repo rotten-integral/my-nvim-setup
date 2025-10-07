@@ -11,7 +11,16 @@ require("lazy").setup({
   -- Place your plugin definitions here...
 
 { 'folke/tokyonight.nvim', lazy = false, priority = 1000 },
+{ 'lukas-reineke/indent-blankline.nvim', main = "ibl", opts = {} },
 })
+EOF
+
+" ---<<intendation-lines setup>>---
+lua << EOF
+require("ibl").setup {
+    indent = { char = "│" },       -- You can use '┊', '¦', or '▏'
+    scope = { enabled = true },
+}
 EOF
 
 " ---<<Sourcing the colorscheme.lua file>>---
