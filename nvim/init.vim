@@ -93,10 +93,10 @@ inoremap [] []
 " ---<<LaTeX specific stuff>>---
 " ---<<LaTeX Compile Function>>---
 function! CompileAndOpenLatex()
-    " 1. Check if pdflatex exists
-    if !executable('pdflatex')
+    " 1. Check if lualatex exists
+    if !executable('lualatex')
         echohl ErrorMsg
-        echo "ERROR: pdflatex not found. Install MiKTeX or TeX Live."
+        echo "ERROR: lualatex not found. Install MiKTeX or TeX Live."
         echohl None
         return
     endif
@@ -107,9 +107,9 @@ function! CompileAndOpenLatex()
     " Use shellescape() for robust handling of file paths with spaces on Windows
     let l:tex_file = shellescape(expand('%:p'))
     
-    " The compilation command: runs pdflatex without stopping for errors.
+    " The compilation command: runs lualatex without stopping for errors.
     " Note: The ! executes the external command and prints its output to Vim's command area.
-    execute '!pdflatex -interaction=nonstopmode ' . l:tex_file
+    execute '!lualatex -interaction=nonstopmode ' . l:tex_file
     
     echohl WarningMsg
     echo "Compilation finished. Check Vim messages for output/errors."
