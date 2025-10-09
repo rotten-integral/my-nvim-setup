@@ -13,7 +13,14 @@ require("lazy").setup({
 { 'folke/tokyonight.nvim', lazy = false, priority = 1000 },
 { 'lukas-reineke/indent-blankline.nvim', main = "ibl", opts = {} },
 { "sphamba/smear-cursor.nvim", opts = {} },
-{ "frabjous/knap" },
+{ "lervag/vimtex",
+lazy = false,     -- we don't want to lazy load VimTeX
+  --tag = "v2.15", -- uncomment to pin to a specific release
+  init = function()
+    -- VimTeX configuration goes here, e.g.
+  
+end
+},
 })
 EOF
 
@@ -72,6 +79,25 @@ syntax on
 set termguicolors
 set guioptions-=T
 set smartindent
+colorscheme tokyonight-moon
+" Viewer options: One may configure the viewer either by specifying a built-in
+" viewer method:
+
+" VimTeX uses latexmk as the default compiler backend. If you use it, which is
+" strongly recommended, you probably don't need to configure anything. If you
+" want another compiler backend, you can change it as follows. The list of
+" supported backends and further explanation is provided in the documentation,
+" see ":help vimtex-compiler".
+let g:vimtex_compiler_method = 'latexmk'
+
+
+" --- Viewer configuration: SumatraPDF ---
+"  sumatra pdf inverse search prev command " C:\Program Files (x86)\Vim\vim91\gvim.exe" "%f" +%l
+let g:vimtex_view_method = 'general'  " Use the generic viewer interface
+let g:vimtex_view_general_viewer = 'C:\Users\anude\AppData\Local\SumatraPDF\SumatraPDF.exe'
+let g:vimtex_view_general_options = '-reuse-instance -forward-search @tex @line @pdf'
+
+
 
 inoremap { {}<Left>
 inoremap {<CR> {<CR>}<Esc>O
@@ -93,10 +119,10 @@ inoremap [] []
 " ---<<LaTeX specific stuff>>---
 " ---<<LaTeX Compile Function>>---
 function! CompileAndOpenLatex()
-    " 1. Check if lualatex exists
-    if !executable('lualatex')
+    " 1. Check if pdflatex exists
+    if !executable('pdflatex')
         echohl ErrorMsg
-        echo "ERROR: lualatex not found. Install MiKTeX or TeX Live."
+        echo "ERROR: pdflatex not found. Install MiKTeX or TeX Live."
         echohl None
         return
     endif
@@ -107,9 +133,9 @@ function! CompileAndOpenLatex()
     " Use shellescape() for robust handling of file paths with spaces on Windows
     let l:tex_file = shellescape(expand('%:p'))
     
-    " The compilation command: runs lualatex without stopping for errors.
+    " The compilation command: runs pdflatex without stopping for errors.
     " Note: The ! executes the external command and prints its output to Vim's command area.
-    execute '!lualatex -interaction=nonstopmode ' . l:tex_file
+    execute '!pdflatex -interaction=nonstopmode ' . l:tex_file
     
     echohl WarningMsg
     echo "Compilation finished. Check Vim messages for output/errors."
@@ -173,42 +199,6 @@ augroup latex_autotype
 	autocmd FileType tex inoremap Cases: \begin{cases}<CR>\item<CR>\end{cases}<Esc>kA	
 	autocmd FileType tex inoremap Figure: \begin{figure}[]<CR>\includegraphics[]{}<CR>\end{figure}<Esc>kA
 augroup END
-
-
-""""""""""""""""""
-" KNAP functions "
-""""""""""""""""""
-" F5 processes the document once, and refreshes the view "
-inoremap <silent> <F4> <C-o>:lua require("knap").process_once()<CR>
-vnoremap <silent> <F4> <C-c>:lua require("knap").process_once()<CR>
-nnoremap <silent> <F4> :lua require("knap").process_once()<CR>
-
-" F6 closes the viewer application, and allows settings to be reset "
-inoremap <silent> <F6> <C-o>:lua require("knap").close_viewer()<CR>
-vnoremap <silent> <F6> <C-c>:lua require("knap").close_viewer()<CR>
-nnoremap <silent> <F6> :lua require("knap").close_viewer()<CR>
-
-" F7 toggles the auto-processing on and off "
-inoremap <silent> <F7> <C-o>:lua require("knap").toggle_autopreviewing()<CR>
-vnoremap <silent> <F7> <C-c>:lua require("knap").toggle_autopreviewing()<CR>
-nnoremap <silent> <F7> :lua require("knap").toggle_autopreviewing()<CR>
-
-" F8 invokes a SyncTeX forward search, or similar, where appropriate "
-inoremap <silent> <F8> <C-o>:lua require("knap").forward_jump()<CR>
-vnoremap <silent> <F8> <C-c>:lua require("knap").forward_jump()<CR>
-nnoremap <silent> <F8> :lua require("knap").forward_jump()<CR>
-
-
-" Vimscript configuration (in init.vim)
-let g:vimtex_view_method = 'sioyek'
-
-" This is CRITICAL. Adjust the path as necessary for your system.
-" Example for Windows:
-" let g:vimtex_view_sioyek_exe = 'C:/Program Files/Sioyek/sioyek.exe'
-" Example for Linux/macOS (if it's in your PATH):
-let g:vimtex_view_sioyek_exe = 'sioyek'
-"---------------------------------------------------------------------------
-
 
 " --<<c++ compilation commands>>--
 autocmd filetype cpp nnoremap <F9> :w <bar> !g++ -std=c++14 % -o %:r -Wl,--stack,268435456<CR>
