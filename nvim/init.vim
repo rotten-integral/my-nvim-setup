@@ -1,4 +1,4 @@
-" ---<<Custom Made init.vim (of course with the help of gemini and chatgpt) mainly for typesetting tex files and c++ - rotten integral>>--
+" ---<<Custom Made init.vim mainly for latex typesetting and cpp>>--
 " ---<<Lazy.nvim Installation/Bootstrap>>---
 lua << EOF
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -12,23 +12,16 @@ require("lazy").setup({
 
 { 'folke/tokyonight.nvim', lazy = false, priority = 1000 },
 { 'lukas-reineke/indent-blankline.nvim', main = "ibl", opts = {} },
+{ "sphamba/smear-cursor.nvim", opts = {} },
+{ "frabjous/knap" },
 })
 EOF
 
-" ---<<intendation-lines setup>>---
-lua << EOF
-require("ibl").setup {
-    indent = { char = "│" },       -- You can use '┊', '¦', or '▏'
-    scope = { enabled = true },
-}
-EOF
+
 
 " ---<<Sourcing the colorscheme.lua file>>---
 lua require('config.colorscheme')
 "---------------------------------------------------------------------------
-
-
-" ---<<My existing Vimscript aka _vimrc>>---
 if &diffopt !~# 'internal'
   set diffexpr=MyDiff()
 endif
@@ -78,6 +71,7 @@ set noexpandtab
 syntax on
 set termguicolors
 set guioptions-=T
+set smartindent
 
 inoremap { {}<Left>
 inoremap {<CR> {<CR>}<Esc>O
@@ -137,7 +131,7 @@ augroup END
 
 augroup latex_mathmode_completion
     autocmd!
-	autocmd FileType tex inoremap \[ \[\]<Left>
+	autocmd FileType tex inoremap \[ \[\]<Left><left>
 	autocmd FileType tex inoremap \[<CR> \[<CR>\]<Esc>O
 	autocmd FileType tex inoremap \[\] \[
 	autocmd FileType tex inoremap \[\] \[\]
@@ -150,32 +144,69 @@ augroup END
 
 augroup latex_autotype
     autocmd!
-    autocmd FileType tex inoremap proof: \begin{myproof}<CR><CR>\end{myproof}<Esc>kA
-    autocmd FileType tex inoremap solution: \begin{solution}<CR><CR>\end{solution}<Esc>kA
-	autocmd FileType tex inoremap problem: \begin{problem}{}{\href{}{}}<CR><CR>\end{problem}<Esc>kA
-    autocmd FileType tex inoremap align: \begin{align*}<CR><CR>\end{align*}<Esc>kA
-    autocmd FileType tex inoremap numalign: \begin{align}<CR><CR>\end{align}<Esc>kA
-	autocmd FileType tex inoremap theorem: \begin{theorem}{}{}<CR><CR>\end{theorem}<Esc>kA
-	autocmd FileType tex inoremap notitthm: \begin{notithm}{}<CR><CR>\end{notitthm}<Esc>kA
-	autocmd FileType tex inoremap asy: \begin{asy}<CR>size(5cm);<CR>import geometry;<CR>\end{asy}<Esc>kA
-	autocmd FileType tex inoremap remark: \begin{remark}<CR><CR>\end{remark}<Esc>kA
-	autocmd FileType tex inoremap lemma: \begin{lemma}{}<CR><CR>\end{lemma}<Esc>kA
-	autocmd FileType tex inoremap proposition: \begin{proposition}{}<CR><CR>\end{proposition}<Esc>kA
-	autocmd FileType tex inoremap example: \begin{example}{}<CR><CR>\end{example}<Esc>kA
-	autocmd FileType tex inoremap claim: \begin{claim}<CR><CR>\end{claim}<Esc>kA
-	autocmd FileType tex inoremap numequation: \begin{equation}<CR><CR>\end{equation}<Esc>kA
-	autocmd FileType tex inoremap equation: \begin{equation*}<CR><CR>\end{equation*}<Esc>kA
-	autocmd FileType tex inoremap takeaway: \begin{takeaway}<CR><CR>\end{takeaway}<Esc>kA
-	autocmd FileType tex inoremap numclaim: \begin{numclaim}{}<CR><CR>\end{numclaim}<Esc>kA
-	autocmd FileType tex inoremap code: \begin{verbatim}<CR><CR>\end{verbatim}<Esc>kA
-	autocmd FileType tex inoremap tabular: \begin{tabular}{}<CR><CR>\end{tabular}<Esc>kA
-	autocmd FileType tex inoremap gathered: \begin{gathered*}<CR><CR>\end{gathered*}<Esc>kA
-	autocmd FileType tex inoremap numgathered: \begin{gathered}<CR><CR>\end{gathered}<Esc>kA
-	autocmd FileType tex inoremap center: \begin{center}<CR><CR>\end{center}<Esc>kA
-	autocmd FileType tex inoremap <buffer> qed: $\qedwhite$
-	autocmd FileType tex inoremap itemize: \begin{itemize}<CR><CR>\end{itemize}<Esc>kA
-	autocmd FileType tex inoremap enumerate: \begin{enumerate}<CR><CR>\end{enumerate}<Esc>kA
+    autocmd FileType tex inoremap Proof: \begin{myproof}<CR><CR>\end{myproof}<Esc>kA
+    autocmd FileType tex inoremap Solution: \begin{solution}<CR><CR>\end{solution}<Esc>kA
+	autocmd FileType tex inoremap Problem: \begin{problem}{}{\href{}{}}<CR><CR>\end{problem}<Esc>kA
+    autocmd FileType tex inoremap Align: \begin{align*}<CR><CR>\end{align*}<Esc>kA
+    autocmd FileType tex inoremap Numalign: \begin{align}<CR><CR>\end{align}<Esc>kA
+	autocmd FileType tex inoremap Theorem: \begin{theorem}{}{}<CR><CR>\end{theorem}<Esc>kA
+	autocmd FileType tex inoremap Notitthm: \begin{notithm}{}<CR><CR>\end{notitthm}<Esc>kA
+	autocmd FileType tex inoremap Asy: \begin{asy}<CR>size(5cm);<CR>import geometry;<CR>\end{asy}<Esc>kA
+	autocmd FileType tex inoremap Remark: \begin{remark}<CR><CR>\end{remark}<Esc>kA
+	autocmd FileType tex inoremap Lemma: \begin{lemma}{}<CR><CR>\end{lemma}<Esc>kA
+	autocmd FileType tex inoremap Proposition: \begin{proposition}{}<CR><CR>\end{proposition}<Esc>kA
+	autocmd FileType tex inoremap Example: \begin{example}{}<CR><CR>\end{example}<Esc>kA
+	autocmd FileType tex inoremap Claim: \begin{claim}<CR><CR>\end{claim}<Esc>kA
+	autocmd FileType tex inoremap Numeqn: \begin{equation}<CR><CR>\end{equation}<Esc>kA
+	autocmd FileType tex inoremap Eqn: \begin{equation*}<CR><CR>\end{equation*}<Esc>kA
+	autocmd FileType tex inoremap Takeaway: \begin{takeaway}<CR><CR>\end{takeaway}<Esc>kA
+	autocmd FileType tex inoremap Numclaim: \begin{numclaim}{}<CR><CR>\end{numclaim}<Esc>kA
+	autocmd FileType tex inoremap Code: \begin{verbatim}<CR><CR>\end{verbatim}<Esc>kA
+	autocmd FileType tex inoremap Tabular: \begin{tabular}{}<CR><CR>\end{tabular}<Esc>kA
+	autocmd FileType tex inoremap Gather: \begin{gathered*}<CR><CR>\end{gathered*}<Esc>kA
+	autocmd FileType tex inoremap Numgather: \begin{gathered}<CR><CR>\end{gathered}<Esc>kA
+	autocmd FileType tex inoremap Center: \begin{center}<CR><CR>\end{center}<Esc>kA
+	autocmd FileType tex inoremap <buffer> Qed: $\qedwhite$
+	autocmd FileType tex inoremap Itemize: \begin{itemize}<CR>\item<CR>\end{itemize}<Esc>kA
+	autocmd FileType tex inoremap Enumerate: \begin{enumerate}<CR>\item<CR>\end{enumerate}<Esc>kA
+	autocmd FileType tex inoremap Mycases: \begin{mycases}<CR>\item<CR>\end{mycases}<Esc>kA
+	autocmd FileType tex inoremap Cases: \begin{cases}<CR>\item<CR>\end{cases}<Esc>kA	
+	autocmd FileType tex inoremap Figure: \begin{figure}[]<CR>\includegraphics[]{}<CR>\end{figure}<Esc>kA
 augroup END
+
+
+""""""""""""""""""
+" KNAP functions "
+""""""""""""""""""
+" F5 processes the document once, and refreshes the view "
+inoremap <silent> <F4> <C-o>:lua require("knap").process_once()<CR>
+vnoremap <silent> <F4> <C-c>:lua require("knap").process_once()<CR>
+nnoremap <silent> <F4> :lua require("knap").process_once()<CR>
+
+" F6 closes the viewer application, and allows settings to be reset "
+inoremap <silent> <F6> <C-o>:lua require("knap").close_viewer()<CR>
+vnoremap <silent> <F6> <C-c>:lua require("knap").close_viewer()<CR>
+nnoremap <silent> <F6> :lua require("knap").close_viewer()<CR>
+
+" F7 toggles the auto-processing on and off "
+inoremap <silent> <F7> <C-o>:lua require("knap").toggle_autopreviewing()<CR>
+vnoremap <silent> <F7> <C-c>:lua require("knap").toggle_autopreviewing()<CR>
+nnoremap <silent> <F7> :lua require("knap").toggle_autopreviewing()<CR>
+
+" F8 invokes a SyncTeX forward search, or similar, where appropriate "
+inoremap <silent> <F8> <C-o>:lua require("knap").forward_jump()<CR>
+vnoremap <silent> <F8> <C-c>:lua require("knap").forward_jump()<CR>
+nnoremap <silent> <F8> :lua require("knap").forward_jump()<CR>
+
+
+" Vimscript configuration (in init.vim)
+let g:vimtex_view_method = 'sioyek'
+
+" This is CRITICAL. Adjust the path as necessary for your system.
+" Example for Windows:
+" let g:vimtex_view_sioyek_exe = 'C:/Program Files/Sioyek/sioyek.exe'
+" Example for Linux/macOS (if it's in your PATH):
+let g:vimtex_view_sioyek_exe = 'sioyek'
 "---------------------------------------------------------------------------
 
 
